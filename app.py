@@ -541,21 +541,11 @@ with left_col:
     """, unsafe_allow_html=True)
 
 with right_col:
+    st.markdown('<div class="panel-title">TERMINAL</div>', unsafe_allow_html=True)
     term_text = "\n".join(st.session_state.history[-100:])
-    safe_term = html.escape(term_text)
-    st.markdown(f"""
-    <div class="panel-title">TERMINAL</div>
-    <div class="terminal-container" id="term-box">{safe_term}</div>
-    <script>
-        setTimeout(function() {{
-            var t = document.getElementById("term-box");
-            if (t) {{
-                t.scrollTop = t.scrollHeight;
-            }}
-        }}, 50);
-    </script>
-    """, unsafe_allow_html=True)
-
+    
+    # Streamlit ka built-in code/text container jo scroll ko naturally handle karta hai
+    st.code(term_text, language="")
 with st.form("command_form", clear_on_submit=True):
     c1, c2, c3 = st.columns([0.9, 8.1, 0.8], gap="small")
     with c1:
