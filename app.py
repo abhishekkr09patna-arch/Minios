@@ -428,6 +428,8 @@ section[data-testid="stSidebar"] {display: none !important;}
     font-size: 14px;
     color: #2ecc71;
     line-height: 1.45;
+    display: flex;
+    flex-direction: column-reverse;
 }
 
 /* Command Bar Styling */
@@ -528,7 +530,7 @@ with left_col:
     """, unsafe_allow_html=True)
 
 with right_col:
-    term_text = "\n".join(st.session_state.history[-100:])
+    term_text = "\n".join(st.session_state.history[-100:][::-1])
     safe_term = html.escape(term_text)
     st.markdown(f"""
     <div class="panel-title">TERMINAL</div>
