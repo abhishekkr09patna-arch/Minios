@@ -52,11 +52,28 @@ def fmt_path(path):
 
 def init_state():
     if "fs" not in st.session_state:
-        st.session_state.fs = create_initial_filesystem()
+        saved_fs = st.query_params.get("fs")
+        if saved_fs:
+            try:
+                st.session_state.fs = json.loads(saved_fs)
+            except:
+                st.session_state.fs = create_initial_filesystem()
+        else:
+            st.session_state.fs = create_initial_filesystem()
+
     if "cwd" not in st.session_state:
-        st.session_state.cwd = ["home", "Ashish"]
+        saved_cwd = st.query_params.get("cwd")
+        if saved_cwd:
+            try:
+                st.session_state.cwd = json.loads(saved_cwd)
+            except:
+                st.session_state.cwd = ["home", "Ashish"]
+        else:
+            st.session_state.cwd = ["home", "Ashish"]
+
     if get_node(st.session_state.cwd) is None:
-        st.session_state.cwd = []
+        st.session_state.cwd = ["home", "Ashish"]
+
     if "processes" not in st.session_state:
         st.session_state.processes = [
             {"pid": 1, "name": "init", "status": "Running", "memory": 12, "burst_time": 3},
@@ -72,8 +89,15 @@ def init_state():
     if "history" not in st.session_state:
         st.session_state.history = [
             "Welcome to MiniOS GUI Simulator!",
-            "Type 'help' to see available the all commands in linux os for doubt clearning of linux program."
+            "Type 'help' to see available all commands in linux os for doubt clearing of linux program."
         ]
+
+def persist_state():
+    try:
+        st.query_params["fs"] = json.dumps(st.session_state.fs)
+        st.query_params["cwd"] = json.dumps(st.session_state.cwd)
+    except Exception:
+        pass
 
 def add(message=""):
     st.session_state.history.append(str(message))
@@ -300,11 +324,13 @@ schedule fcfs | schedule rr [QUANTUM] | date | clear | reset""")
         st.session_state.next_block_id = 1
         st.session_state.history = [
             "Welcome to MiniOS GUI Simulator!",
-            "Type 'help' to see available the all commands in linux os for doubt clearning of linux program."
+            "Type 'help' to see available all commands in linux os for doubt clearing of linux program."
         ]
     else:
         add(f"Unknown command: {cmd}")
         add("Type 'help' to see available commands.")
+        
+    persist_state()
 
 def render_tree_lines(node, depth=1):
     lines = []
@@ -321,15 +347,12 @@ def render_tree_lines(node, depth=1):
 
 init_state()
 
-# Custom CSS to match the exact Tkinter GUI look
 st.markdown("""
 <style>
-/* Hide default Streamlit elements */
 header[data-testid="stHeader"] {display: none !important;}
 section[data-testid="stSidebar"] {display: none !important;}
 #MainMenu, footer {visibility: hidden;}
 
-/* App background and spacing */
 .stApp {
     background-color: #0b131e !important;
     color: #ffffff !important;
@@ -342,7 +365,6 @@ section[data-testid="stSidebar"] {display: none !important;}
     max-width: 100% !important;
 }
 
-/* Header & Status Bar */
 .minios-topbar {
     background-color: #101c2b;
     padding: 12px 20px;
@@ -355,7 +377,7 @@ section[data-testid="stSidebar"] {display: none !important;}
     color: #2ecc71;
     font-size: 26px;
     font-weight: 800;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     letter-spacing: 1px;
 }
 .minios-subtitle {
@@ -385,7 +407,6 @@ section[data-testid="stSidebar"] {display: none !important;}
     font-weight: 700;
 }
 
-/* Panel Headers */
 .panel-title {
     color: #2ecc71;
     font-size: 13px;
@@ -395,7 +416,6 @@ section[data-testid="stSidebar"] {display: none !important;}
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Left Virtual File System Box */
 .vfs-container {
     background-color: #1a2a3a;
     border: 2px solid #b8c6d4;
@@ -416,7 +436,6 @@ section[data-testid="stSidebar"] {display: none !important;}
     font-weight: 500;
 }
 
-/* Right Terminal Box */
 .terminal-container {
     background-color: #060a0f;
     border: 1px solid #1c2d42;
@@ -430,7 +449,6 @@ section[data-testid="stSidebar"] {display: none !important;}
     line-height: 1.45;
 }
 
-/* Command Bar Styling */
 div[data-testid="stForm"] {
     background-color: #101c2b !important;
     border: 1px solid #1e3046 !important;
@@ -450,7 +468,6 @@ div[data-testid="stForm"] {
     font-family: Consolas, monospace;
 }
 
-/* Force Dark Input Box */
 div[data-baseweb="input"] {
     background-color: #060a0f !important;
     border: 1px solid #1f3349 !important;
@@ -464,7 +481,6 @@ div[data-baseweb="input"] input {
     caret-color: #2ecc71 !important;
 }
 
-/* Green RUN Button */
 div[data-testid="stFormSubmitButton"] > button {
     background-color: #2ecc71 !important;
     color: #050a0f !important;
@@ -478,7 +494,6 @@ div[data-testid="stFormSubmitButton"] > button:hover {
     color: #000000 !important;
 }
 
-/* Bottom Clear / Action Buttons */
 div.stButton > button, div.stDownloadButton > button {
     background-color: #1d3044 !important;
     color: #d8e4f0 !important;
@@ -504,7 +519,6 @@ div.stButton > button:hover, div.stDownloadButton > button:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# 1. Top Title Bar & Status Bar
 current_path_str = fmt_path(st.session_state.cwd)
 st.markdown(f"""
 <div class="minios-topbar">
@@ -517,7 +531,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# 2. Main Split Layout (Left: Virtual File System | Right: Terminal)
 left_col, right_col = st.columns([1, 2.7], gap="medium")
 
 with left_col:
@@ -534,13 +547,15 @@ with right_col:
     <div class="panel-title">TERMINAL</div>
     <div class="terminal-container" id="term-box">{safe_term}</div>
     <script>
-        var box = document.getElementById("term-box");
-        if (box) {{
-            box.scrollTop = box.scrollHeight;
-        }}
+        setTimeout(function() {{
+            var t = document.getElementById("term-box");
+            if (t) {{
+                t.scrollTop = t.scrollHeight;
+            }}
+        }}, 50);
     </script>
     """, unsafe_allow_html=True)
-# 3. Bottom Command Input Bar
+
 with st.form("command_form", clear_on_submit=True):
     c1, c2, c3 = st.columns([0.9, 8.1, 0.8], gap="small")
     with c1:
@@ -554,7 +569,6 @@ if submitted and entered:
     command(entered)
     st.rerun()
 
-# 4. Footer Row (CLEAR TERMINAL & Simulator Tag)
 f1, f2, f3, f4 = st.columns([1.3, 1.2, 1.5, 6.0], gap="small")
 with f1:
     if st.button("CLEAR TERMINAL", use_container_width=True):
