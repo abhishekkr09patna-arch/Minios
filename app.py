@@ -542,10 +542,9 @@ with left_col:
 
 with right_col:
     st.markdown('<div class="panel-title">TERMINAL</div>', unsafe_allow_html=True)
-    term_text = "\n".join(st.session_state.history[-100:])
-    
-    # Streamlit ka built-in code/text container jo scroll ko naturally handle karta hai
-    st.code(term_text, language="")
+    with st.container(height=430):
+        term_text = "\n".join(st.session_state.history[-100:])
+        st.markdown(f'<div style="font-family: Consolas, monospace; color: #2ecc71; white-space: pre-wrap; font-size: 14px; line-height: 1.45;">{html.escape(term_text)}</div>', unsafe_allow_html=True)
 with st.form("command_form", clear_on_submit=True):
     c1, c2, c3 = st.columns([0.9, 8.1, 0.8], gap="small")
     with c1:
