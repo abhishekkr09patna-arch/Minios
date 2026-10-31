@@ -529,14 +529,17 @@ with left_col:
 
 with right_col:
     term_text = "\n".join(st.session_state.history[-100:])
-    st.markdown('<div class="panel-title">TERMINAL</div>', unsafe_allow_html=True)
-    st.text_area(
-        "TERMINAL_VIEW", 
-        value=term_text, 
-        height=430, 
-        label_visibility="collapsed", 
-        disabled=True
-    )
+    safe_term = html.escape(term_text)
+    st.markdown(f"""
+    <div class="panel-title">TERMINAL</div>
+    <div class="terminal-container" id="term-box">{safe_term}</div>
+    <script>
+        var box = document.getElementById("term-box");
+        if (box) {{
+            box.scrollTop = box.scrollHeight;
+        }}
+    </script>
+    """, unsafe_allow_html=True)
 # 3. Bottom Command Input Bar
 with st.form("command_form", clear_on_submit=True):
     c1, c2, c3 = st.columns([0.9, 8.1, 0.8], gap="small")
