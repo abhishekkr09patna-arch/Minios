@@ -528,25 +528,15 @@ with left_col:
     """, unsafe_allow_html=True)
 
 with right_col:
+    term_text = "\n".join(st.session_state.history[-100:])
     st.markdown('<div class="panel-title">TERMINAL</div>', unsafe_allow_html=True)
-    
-    # Terminal container ke sath har entry ko render karna aur last mein empty anchor dena
-    term_lines = st.session_state.history[-100:]
-    term_text = "\n".join(term_lines)
-    safe_term = html.escape(term_text)
-    
-    st.markdown(f'<div class="terminal-container">{safe_term}<div id="end-of-term"></div></div>', unsafe_allow_html=True)
-    
-    # Streamlit ka built-in anchor jo page load hone par automatic scroll kar dega
-    st.components.v1.html("""
-        <script>
-            const doc = window.parent.document;
-            const container = doc.querySelector('.terminal-container');
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
-        </script>
-    """, height=0)
+    st.text_area(
+        "TERMINAL_VIEW", 
+        value=term_text, 
+        height=430, 
+        label_visibility="collapsed", 
+        disabled=True
+    )
 # 3. Bottom Command Input Bar
 with st.form("command_form", clear_on_submit=True):
     c1, c2, c3 = st.columns([0.9, 8.1, 0.8], gap="small")
