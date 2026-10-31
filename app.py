@@ -534,10 +534,12 @@ with right_col:
     <div class="panel-title">TERMINAL</div>
     <div class="terminal-container" id="term-box">{safe_term}</div>
     <script>
-        var box = document.getElementById("term-box");
-        if (box) {{
-            box.scrollTop = box.scrollHeight;
-        }}
+        setTimeout(function() {{
+            var box = document.getElementById("term-box");
+            if (box) {{
+                box.scrollTop = box.scrollHeight;
+            }}
+        }}, 100);
     </script>
     """, unsafe_allow_html=True)
 
