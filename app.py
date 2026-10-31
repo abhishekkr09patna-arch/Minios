@@ -532,14 +532,17 @@ with right_col:
     safe_term = html.escape(term_text)
     st.markdown(f"""
     <div class="panel-title">TERMINAL</div>
-    <div class="terminal-container" id="term-box">{safe_term}</div>
+    <div class="terminal-container" id="term-box">
+        {safe_term}
+        <div id="bottom-anchor"></div>
+    </div>
     <script>
         setTimeout(function() {{
-            var box = document.getElementById("term-box");
-            if (box) {{
-                box.scrollTop = box.scrollHeight;
+            var anchor = document.getElementById("bottom-anchor");
+            if (anchor) {{
+                anchor.scrollIntoView({{ behavior: "smooth", block: "end" }});
             }}
-        }}, 100);
+        }}, 150);
     </script>
     """, unsafe_allow_html=True)
 
